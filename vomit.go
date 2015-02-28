@@ -8,16 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 )
-
-func DatePath() string {
-	year := time.Now().Year()
-	month := int(time.Now().Month())
-	day := time.Now().Day()
-
-	return fmt.Sprintf("%d/%d/%d/", year, month, day)
-}
 
 func Add(filename string) {
 
@@ -28,10 +19,10 @@ func Add(filename string) {
 	}
 
 	// Set title
-	post := strings.TrimSuffix(filename, filepath.Ext(filename))
+	title := strings.TrimSuffix(filename, filepath.Ext(filename))
 
 	// Set Path
-	path := DatePath() + post
+	path := "posts/" + title
 
 	// Create path
 	err := os.MkdirAll(path, 0755)
