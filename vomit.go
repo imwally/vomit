@@ -31,11 +31,10 @@ func Add(filename string) {
 	post := strings.TrimSuffix(filename, filepath.Ext(filename))
 
 	// Set Path
-	datePath := DatePath()
-	fullpath := datePath + post
+	path := DatePath() + post
 
 	// Create path
-	err := os.MkdirAll(fullpath, 0755)
+	err := os.MkdirAll(path, 0755)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -47,7 +46,7 @@ func Add(filename string) {
 	}
 
 	// Write markup
-	newpost := fullpath + "/index.html"
+	newpost := path + "/index.html"
 	err = ioutil.WriteFile(newpost, markup, 0755)
 	if err != nil {
 		fmt.Println(err)
