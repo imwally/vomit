@@ -1,2 +1,2 @@
 # vomit
-A repulsive markdown to html blog engine.
+A repulsive markdown to static html blog engine.
