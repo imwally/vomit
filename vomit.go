@@ -1,70 +1,87 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"github.com/russross/blackfriday"
+    "fmt"
+    "log"
+	//"github.com/russross/blackfriday"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
+    "strings"
 )
 
-func Add(filename string) {
+const (
+    postdir = "posts"
+    sitedir = "site"
+)
 
-	// Check if filename exists
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		fmt.Println(err)
-		return
-	}
-
-	// Set title
-	title := strings.TrimSuffix(filename, filepath.Ext(filename))
-
-	// Set Path
-	path := "posts/" + title
-
-	// Create path
-	err := os.MkdirAll(path, 0755)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Convert
-	markup, err := DownToUp(filename)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Write markup
-	newpost := path + "/index.html"
-	err = ioutil.WriteFile(newpost, markup, 0755)
-	if err != nil {
-		fmt.Println(err)
-	}
-
+type Post struct {
+    Title   string
+    Date    string
+    Content []byte
 }
 
-func DownToUp(fn string) ([]byte, error) {
-	file, err := ioutil.ReadFile(fn)
-	if err != nil {
-		return file, err
-	}
+func GeneratePostPage(post Post) {
+    // Write post html page
+}
 
-	markup := blackfriday.MarkdownBasic(file)
+func GenerateIndexPage() {
+    // Write index html page
+}
 
-	return markup, err
+func GetPost(p string) Post {
+    var post Post
+    
+    basename := strings.TrimSuffix(p, filepath.Ext(p))
+    post.Date = basename[:10]
+    post.Title = basename[11:]
+    content, err := ioutil.ReadFile(p)
+    CheckErr(err)
+
+    post.Content = content
+
+    return post
+}
+
+func FindPosts(p string) []Post {
+    var posts []Post
+
+    find := func(p string, f os.FileInfo, err error) error {
+        if !f.IsDir() {
+            posts = append(posts, GetPost(p))
+        }
+        return nil
+    }
+
+    err := filepath.Walk(postdir, find)
+    CheckErr(err)
+
+    return posts
+}
+
+func CheckErr(err error) {
+    if err != nil {
+        log.Println(err)
+    }
 }
 
 func main() {
 
-	flag.Parse()
+    // Check for posts directory
+    _, err := os.Stat(postdir) 
+    if err != nil {
+        fmt.Println("no posts directory found.")
+        return
+    }
 
-	if flag.NArg() < 1 {
-		fmt.Fprintf(os.Stderr, "No command given.\n")
-	}
+    // Gather posts
+    posts := FindPosts(postdir)
 
-	if flag.Arg(0) == "add" {
-		Add(flag.Arg(1))
-	}
+    // Generate post pages
+    for _, post := range posts {
+        GeneratePostPage(post)
+    }
+
+    // Generate index page
 }
+
