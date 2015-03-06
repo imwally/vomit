@@ -2,27 +2,33 @@ package main
 
 import (
 	"fmt"
-	"log"
-	//"github.com/russross/blackfriday"
+	"github.com/russross/blackfriday"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
-)
-
-const (
-	postdir = "posts"
-	sitedir = "site"
+	"text/template"
 )
 
 type Post struct {
-	Title   string
-	Date    string
-	Content []byte
+	Filename string
+	Title    string
+	Date     string
+	Content  string
 }
 
+const (
+	postDir     = "posts"
+	templateDir = "templates"
+)
+
 func GeneratePostPage(post Post) {
-	// Write post html page
+	f, err := os.Create("site/" + post.Filename)
+	CheckErr(err)
+
+	t, _ := template.ParseFiles("templates/post.html")
+	t.Execute(f, post)
 }
 
 func GenerateIndexPage() {
@@ -32,13 +38,16 @@ func GenerateIndexPage() {
 func GetPost(p string) Post {
 	var post Post
 
-	basename := strings.TrimSuffix(p, filepath.Ext(p))
-	post.Date = basename[:10]
-	post.Title = basename[11:]
+	basename := filepath.Base(p)
+	basename = strings.TrimSuffix(basename, filepath.Ext(basename))
+
 	content, err := ioutil.ReadFile(p)
 	CheckErr(err)
 
-	post.Content = content
+	post.Filename = basename + ".html"
+	post.Title = basename[11:]
+	post.Date = basename[:10]
+	post.Content = string(blackfriday.MarkdownCommon(content))
 
 	return post
 }
@@ -53,7 +62,7 @@ func FindPosts(p string) []Post {
 		return nil
 	}
 
-	err := filepath.Walk(postdir, find)
+	err := filepath.Walk(postDir, find)
 	CheckErr(err)
 
 	return posts
@@ -67,20 +76,23 @@ func CheckErr(err error) {
 
 func main() {
 
-	// Check for posts directory
-	_, err := os.Stat(postdir)
-	if err != nil {
-		fmt.Println("no posts directory found.")
-		return
+	// Check for needed directories
+	dirs := []string{postDir, templateDir}
+
+	for _, dir := range dirs {
+		_, err := os.Stat(dir)
+		if err != nil {
+			fmt.Printf("no %s directory found.\n", dir)
+			return
+		}
 	}
 
 	// Gather posts
-	posts := FindPosts(postdir)
+	posts := FindPosts(postDir)
 
 	// Generate post pages
 	for _, post := range posts {
 		GeneratePostPage(post)
 	}
 
-	// Generate index page
 }
