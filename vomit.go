@@ -9,8 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+	"time"
 )
 
+// Post is a struct that holds information about each blog post.
 type Post struct {
 	Filename string
 	Title    string
@@ -18,11 +20,17 @@ type Post struct {
 	Content  string
 }
 
+// Index is a struct that holds all posts.
+type Index struct {
+	Posts []Post
+}
+
 const (
 	postDir     = "posts"
 	templateDir = "templates"
 )
 
+// GeneratePostPage takes a Post and generates an HTML page.
 func GeneratePostPage(post Post) {
 	f, err := os.Create("site/" + post.Filename)
 	CheckErr(err)
@@ -31,10 +39,16 @@ func GeneratePostPage(post Post) {
 	t.Execute(f, post)
 }
 
-func GenerateIndexPage() {
-	// Write index html page
+func GenerateIndexPage(index Index) {
+	f, err := os.Create("site/index.html")
+	CheckErr(err)
+
+	t, _ := template.ParseFiles("templates/index.html")
+	t.Execute(f, index)
 }
 
+// GetPost takes a path to a post and gathers the Filename, Title, Date, and
+// content of the post. It returns a Post.
 func GetPost(p string) Post {
 	var post Post
 
@@ -44,20 +58,29 @@ func GetPost(p string) Post {
 	content, err := ioutil.ReadFile(p)
 	CheckErr(err)
 
+	date, err := time.Parse("2006-01-02", basename[:10])
+	CheckErr(err)
+
+	post.Date = date.Format("January 2, 2006")
 	post.Filename = basename + ".html"
 	post.Title = basename[11:]
-	post.Date = basename[:10]
 	post.Content = string(blackfriday.MarkdownCommon(content))
 
 	return post
 }
 
+// FindPosts takes a path as an argument that will be traversed and searched for
+// markdown files. It returns a slice of Posts.
 func FindPosts(p string) []Post {
 	var posts []Post
 
 	find := func(p string, f os.FileInfo, err error) error {
 		if !f.IsDir() {
-			posts = append(posts, GetPost(p))
+			if filepath.Ext(p) == ".md" {
+				posts = append(posts, GetPost(p))
+			} else {
+				log.Printf("error: %s is not a markdown file\n", p)
+			}
 		}
 		return nil
 	}
@@ -68,6 +91,7 @@ func FindPosts(p string) []Post {
 	return posts
 }
 
+// CheckErr is a helper function that prints errors.
 func CheckErr(err error) {
 	if err != nil {
 		log.Println(err)
@@ -76,7 +100,7 @@ func CheckErr(err error) {
 
 func main() {
 
-	// Check for needed directories
+	// Check for required directories.
 	dirs := []string{postDir, templateDir}
 
 	for _, dir := range dirs {
@@ -87,12 +111,17 @@ func main() {
 		}
 	}
 
-	// Gather posts
+	// Gather posts.
 	posts := FindPosts(postDir)
 
-	// Generate post pages
+	// Generate post pages.
 	for _, post := range posts {
 		GeneratePostPage(post)
 	}
 
+	// Create index of posts.
+	index := Index{Posts: posts}
+
+	// Generate index page.
+	GenerateIndexPage(index)
 }
