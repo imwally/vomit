@@ -119,9 +119,6 @@ func main() {
 		GeneratePostPage(post)
 	}
 
-	// Create index of posts.
-	index := Index{Posts: posts}
-
 	// Generate index page.
-	GenerateIndexPage(index)
+	GenerateIndexPage(Index{Posts: posts})
 }
