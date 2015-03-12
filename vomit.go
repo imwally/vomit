@@ -26,25 +26,38 @@ type Index struct {
 }
 
 const (
-	postDir     = "posts"
-	templateDir = "templates"
+	postDir     = "posts/"
+	templateDir = "templates/"
+	siteDir     = "site/"
 )
 
-// GeneratePostPage takes a Post and generates an HTML page.
+// GeneratePostPage takes a Post and generates a single HTML blog post page.
 func GeneratePostPage(post Post) {
-	f, err := os.Create("site/" + post.Filename)
+	f, err := os.Create(siteDir + post.Filename)
 	CheckErr(err)
 
-	t, _ := template.ParseFiles("templates/post.html")
+	t, _ := template.ParseFiles(templateDir + "post.html")
 	t.Execute(f, post)
 }
 
+// GenerateIndexPage takes a slice of Posts and generates an index page that
+// links to all blog posts.
 func GenerateIndexPage(index Index) {
-	f, err := os.Create("site/index.html")
+	f, err := os.Create(siteDir + "index.html")
 	CheckErr(err)
 
-	t, _ := template.ParseFiles("templates/index.html")
+	t, _ := template.ParseFiles(templateDir + "index.html")
 	t.Execute(f, index)
+}
+
+// CopyStyleSheet will copy the style.css file from the template directory to
+// the site directory.
+func CopyStyleSheet() {
+	f, err := ioutil.ReadFile(templateDir + "style.css")
+	CheckErr(err)
+
+	err = ioutil.WriteFile(siteDir+"style.css", f, 0644)
+	CheckErr(err)
 }
 
 // GetPost takes a path to a post and gathers the Filename, Title, Date, and
@@ -102,12 +115,18 @@ func main() {
 
 	// Check for required directories.
 	dirs := []string{postDir, templateDir}
-
 	for _, dir := range dirs {
 		_, err := os.Stat(dir)
 		if err != nil {
 			fmt.Printf("no %s directory found.\n", dir)
 			return
+		}
+	}
+
+	// Create site directory if it doesn't exist.
+	if _, err := os.Stat("site"); err != nil {
+		if os.IsNotExist(err) {
+			os.Mkdir("site", 0775)
 		}
 	}
 
@@ -121,4 +140,7 @@ func main() {
 
 	// Generate index page.
 	GenerateIndexPage(Index{Posts: posts})
+
+	// Copy over style sheet.
+	CopyStyleSheet()
 }
