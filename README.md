@@ -6,7 +6,7 @@ vomit is a static HTML blog generator. It feeds on markdown and regurgitates a v
 
 ## How to use
 
-Both a `posts` and `templates` directory need to be within the current working directory of vomit. It should look something like the following.
+Both a `posts` and `templates` directory need to be within the current working directory of vomit. It should look something like the following:
 
 ```
 blog
@@ -16,6 +16,26 @@ blog
     |-- index.html
     |-- post.html
     `-- style.css
+```
+
+`~/blog$ vomit`
+
+This will generate the static HTML blog inside a newly created `site` directory.
+
+```
+blog
+.
+|-- posts
+|   `-- 2015-03-05-vomit.md
+|-- site
+|   |-- 2015-03-05-vomit.html
+|   |-- index.html
+|   `-- style.css
+`-- templates
+    |-- index.html
+    |-- post.html
+    `-- style.css
+
 ```
 
 ## Posts
@@ -36,7 +56,7 @@ Templates make use of Go's [text/template](http://golang.org/pkg/text/template) 
 
 ### index.html variables
 
-The index.html template is applied to a slice of Posts. You can range over them like such:
+The index.html template is applied to a slice of `Post`'s. You can range over them like such:
 
 ```
 {{ range $post := .Posts }}
