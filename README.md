@@ -18,13 +18,16 @@ blog
     `-- style.css
 ```
 
-`~/blog$ vomit`
+Now you can just run vomit.
+
+````
+~/blog$ vomit
+```
 
 This will generate the static HTML blog inside a newly created `site` directory.
 
 ```
 blog
-.
 |-- posts
 |   `-- 2015-03-05-vomit.md
 |-- site
