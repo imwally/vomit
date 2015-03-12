@@ -89,7 +89,7 @@ func FindPosts(p string) []Post {
 
 	find := func(p string, f os.FileInfo, err error) error {
 		if !f.IsDir() {
-			if filepath.Ext(p) == ".md" {
+			if filepath.Ext(p) == ".md" || filepath.Ext(p) == ".markdown" {
 				posts = append(posts, GetPost(p))
 			} else {
 				log.Printf("error: %s is not a markdown file\n", p)
