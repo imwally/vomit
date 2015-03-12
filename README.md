@@ -43,7 +43,7 @@ blog
 
 ## Posts
 
-Each post must have the file name format of YYYY-MM-DD-some-title.md. Two different extensions are permitted, md and markdown.
+Each post must have the file name format `YYYY-MM-DD-some-title.md`. Two different extensions are permitted, md and markdown.
 
 ## Templates
 
