@@ -113,12 +113,17 @@ func CheckErr(err error) {
 
 func main() {
 
-	// Check for required directories.
-	dirs := []string{postDir, templateDir}
+	// Check for required directories and templates.
+	dirs := []string{
+            postDir, 
+            templateDir, 
+            templateDir+"index.html",
+            templateDir+"post.html"}
+
 	for _, dir := range dirs {
 		_, err := os.Stat(dir)
 		if err != nil {
-			fmt.Printf("no %s directory found.\n", dir)
+			fmt.Printf("error: %s not found.\n", dir)
 			return
 		}
 	}
