@@ -1,0 +1,22 @@
+#main {
+    width: 800px;
+    margin: auto;
+}
+
+a,
+a:visited {
+    text-decoration: none;
+}
+
+.post {
+    margin-bottom: 20px;
+}
+
+.post .date {
+    color: #777;
+    font-size: 0.75em;
+}
+
+.post .title {
+    font-size: 1.2em;
+}

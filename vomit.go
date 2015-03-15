@@ -78,7 +78,7 @@ func GetTitleContent(f *os.File) (string, []byte) {
                 if s.Text()[:6] == "title:" {
                     title = s.Text()[6:]
                 }
-                 ylen += len(s.Text())
+                ylen += len(s.Text())
             }
         }
     }
@@ -86,7 +86,7 @@ func GetTitleContent(f *os.File) (string, []byte) {
     content, err := ioutil.ReadFile(f.Name())   
     CheckErr(err)
 
-    return title, content[ylen:]
+    return title, content[ylen+4:]
 }
 
 
