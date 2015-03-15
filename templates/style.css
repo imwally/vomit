@@ -3,20 +3,43 @@
     margin: auto;
 }
 
-a,
-a:visited {
+#main .title {
+    font-family: sans-serif;
+    font-size: 3em;
+    text-align: center;
+}
+
+#main .date {
+    text-align: center;
+    color: #777;
+    margin: 50px 0px;
+}
+
+.content p,
+.content ul {
+    font-size: 1.3em;
+    line-height: 1.4em;
+    margin-bottom: 30px;
+}
+
+.content pre {
+    padding: 20px;
+    border: 1px solid #E9E9E9;
+}
+
+a, a:visited {
     text-decoration: none;
 }
 
-.post {
+.list-post {
     margin-bottom: 20px;
 }
 
-.post .date {
+.list-date {
     color: #777;
     font-size: 0.75em;
 }
 
-.post .title {
-    font-size: 1.2em;
+.list-title {
+   font-size: 1.2em;
 }
