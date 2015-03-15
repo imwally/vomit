@@ -3,7 +3,7 @@ package main
 import (
     "bufio"
 	"fmt"
-	"github.com/russross/blackfriday"
+	//"github.com/russross/blackfriday"
 	"io/ioutil"
 	"log"
 	"os"
@@ -26,7 +26,6 @@ type Index struct {
 	Posts []Post
 }
 
-// Common directories.
 const (
 	postDir     = "posts/"
 	templateDir = "templates/"
@@ -62,6 +61,7 @@ func CopyStyleSheet() {
 	CheckErr(err)
 }
 
+<<<<<<< HEAD
 // GetTitleContent takes a os.File and parses the content for the title and body
 // of the post.
 func GetTitleContent(f *os.File) (string, []byte) {
@@ -89,32 +89,40 @@ func GetTitleContent(f *os.File) (string, []byte) {
     return title, content[ylen+4:]
 }
 
+=======
+
+func GetTitle(f *os.File) {
+    scanner := bufio.NewScanner(f)
+    for scanner.Scan() {
+        if scanner.Text() == "---" {
+            fmt.Println(scanner.Text())
+        }
+    }
+} 
+>>>>>>> parent of 7c4773b... add title and content parsing function
 
 // GetPost takes a path to a post and gathers the Filename, Title, Date, and
 // content of the post. It returns a Post.
 func GetPost(p string) Post {
 	var post Post
 
-	f, err := os.Open(p)
+    f, err := os.Open(p)
     CheckErr(err)
     defer f.Close()
- 
-    // Get title and content
-    title, content := GetTitleContent(f) 
-    post.Title = title
-	post.Content = string(blackfriday.MarkdownCommon(content))
 
-    // Get filename
-    basename := filepath.Base(f.Name())
+	basename := filepath.Base(f.Name())
 	basename = strings.TrimSuffix(basename, filepath.Ext(basename))
 	post.Filename = basename + ".html"
 
-    // Get Date
 	date, err := time.Parse("2006-01-02", basename[:10])
 	CheckErr(err)
 	post.Date = date.Format("January 2, 2006")
 
-   	return post
+    GetTitle(f)
+
+	//post.Content = string(blackfriday.MarkdownCommon(content))
+
+	return post
 }
 
 // FindMarkDown takes a path as an argument that will be traversed and searched for
@@ -173,14 +181,16 @@ func main() {
 	// Gather posts.
 	posts := FindMarkDown(postDir)
 
-	// Generate post pages.
-	for _, post := range posts {
-		GeneratePostPage(post)
-    }
+    fmt.Println(posts)
 
-	// Generate index page.
-	GenerateIndexPage(Index{Posts: posts})
+	//// Generate post pages.
+	//for _, post := range posts {
+	//	GeneratePostPage(post)
+	//}
 
-	// Copy over style sheet.
-	CopyStyleSheet()
+	//// Generate index page.
+	//GenerateIndexPage(Index{Posts: posts})
+
+	//// Copy over style sheet.
+	//CopyStyleSheet()
 }
