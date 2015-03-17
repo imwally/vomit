@@ -2,11 +2,14 @@
 
 _A repulsive markdown to static html blog generator._
 
-vomit is a static HTML blog generator. It feeds on markdown and regurgitates a very simple static HTML blog. The blog is nothing more then a single index page that lists each blog post.
+`vomit` feeds on markdown posts and regurgitates a very simple static HTML blog.
+The blog is nothing more then a single index page that lists each blog post.
 
 ## How to use
 
-Both a `posts` and `templates` directory need to be within the current working directory of vomit. It should look something like the following:
+Two things are required -- `posts/` and `templates/`.
+
+A working directory would look something like this:
 
 ```
 blog
@@ -18,7 +21,7 @@ blog
     `-- style.css
 ```
 
-Now you can just run vomit.
+Run `vomit`.
 
 ````
 ~/blog$ vomit
@@ -43,28 +46,32 @@ blog
 
 ## Posts
 
-Each post must have the file name format `YYYY-MM-DD-some-title.md`. Two different extensions are permitted, md and markdown.
+Each post must have the file name format `YYYY-MM-DD-some-title.md`. Two
+different extensions are permitted, md and markdown.
 
 ## Templates
 
-Templates make use of Go's [text/template](http://golang.org/pkg/text/template) package. You can find examples inside this repo's own `templates` directory. Both templates are applied to the `Post` struct.
+Templates make use of Go's [text/template](http://golang.org/pkg/text/template)
+package. You can find examples inside this repo's own `templates` directory.
+Both templates are applied to the `Post` struct.
 
 ### post.html variables
 
 ```
 {{ .Title }}
-{{ .Date }}
+{{ .FormattedDate }}
 {{ .Content }}
 ```
 
 ### index.html variables
 
-The index.html template is applied to a slice of `Post`'s. You can range over them like such:
+The index.html template is applied to a slice of `Post`'s. You can range over
+them like such:
 
 ```
-{{ range $post := .Posts }}
-    {{ $post.Title }}
-    {{ $post.Date }}
-    {{ $post.Content }}
+{{ range . }}
+    {{ .Title }}
+    {{ .FormattedDate }}
+    {{ .Content }}
 {{ end }}
 ```
