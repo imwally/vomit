@@ -12,13 +12,13 @@
         
         <h1>Blog Posts</h1>
 
-        {{ range $post := .Posts }}
+        {{ range . }}
             <div class="list-post">
                 <div class="list-title">
-                    <strong><a href="{{ $post.Filename }}">{{ $post.Title }}</a></strong>
+                    <strong><a href="{{ .Filename }}">{{ .Title }}</a></strong>
                 </div> 
                 <div class="list-date">
-                    <em>{{ $post.Date }}</em>
+                    <em>{{ .FormattedDate }}</em>
                 </div>
             </div>
         {{ end }}
