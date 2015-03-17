@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"text/template"
 	"time"
@@ -15,16 +16,14 @@ import (
 
 // Post is a struct that holds information about each blog post.
 type Post struct {
-	Filename string
-	Title    string
-	Date     string
-	Content  string
+	Filename      string
+	Title         string
+	Date          time.Time
+	FormattedDate string
+	Content       string
 }
 
-// Index is a struct that holds all posts.
-type Index struct {
-	Posts []Post
-}
+type Posts []Post
 
 // Common directories.
 const (
@@ -33,23 +32,36 @@ const (
 	siteDir     = "site/"
 )
 
+// Satisfy sort Interface to sort posts by date.
+func (p Posts) Len() int {
+	return len(p)
+}
+
+func (p Posts) Less(i, j int) bool {
+	return p[j].Date.Before(p[i].Date)
+}
+
+func (p Posts) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
 // GeneratePostPage takes a Post and generates a single HTML blog post page.
-func GeneratePostPage(post Post) {
-	f, err := os.Create(siteDir + post.Filename)
+func GeneratePostPage(p Post) {
+	f, err := os.Create(siteDir + p.Filename)
 	CheckErr(err)
 
 	t, _ := template.ParseFiles(templateDir + "post.html")
-	t.Execute(f, post)
+	t.Execute(f, p)
 }
 
 // GenerateIndexPage takes a slice of Posts and generates an index page that
 // links to all blog posts.
-func GenerateIndexPage(index Index) {
+func GenerateIndexPage(p Posts) {
 	f, err := os.Create(siteDir + "index.html")
 	CheckErr(err)
 
 	t, _ := template.ParseFiles(templateDir + "index.html")
-	t.Execute(f, index)
+	t.Execute(f, p)
 }
 
 // CopyStyleSheet will copy the style.css file from the template directory to
@@ -111,14 +123,17 @@ func GetPost(p string) Post {
 	// Get Date
 	date, err := time.Parse("2006-01-02", basename[:10])
 	CheckErr(err)
-	post.Date = date.Format("January 2, 2006")
+	post.Date = date
+
+	// Format Date
+	post.FormattedDate = date.Format("January 2, 2006")
 
 	return post
 }
 
 // FindMarkDown takes a path as an argument that will be traversed and searched for
 // markdown files. It returns a slice of Posts.
-func FindMarkDown(p string) []Post {
+func FindMarkDown(p string) Posts {
 	var posts []Post
 
 	find := func(p string, f os.FileInfo, err error) error {
@@ -172,13 +187,16 @@ func main() {
 	// Gather posts.
 	posts := FindMarkDown(postDir)
 
+	// Sort Posts
+	sort.Sort(posts)
+
 	// Generate post pages.
 	for _, post := range posts {
 		GeneratePostPage(post)
 	}
 
 	// Generate index page.
-	GenerateIndexPage(Index{Posts: posts})
+	GenerateIndexPage(posts)
 
 	// Copy over style sheet.
 	CopyStyleSheet()
