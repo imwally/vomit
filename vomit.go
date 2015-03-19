@@ -66,17 +66,18 @@ func GenerateIndexPage(p Posts) {
 
 // CopyStyleSheet will copy the style.css file from the template directory to
 // the site directory.
-func CopyStyleSheet() {
+func CopyStyleSheet() error {
 	f, err := ioutil.ReadFile(templateDir + "style.css")
-	CheckErr(err)
+	return err
 
 	err = ioutil.WriteFile(siteDir+"style.css", f, 0644)
-	CheckErr(err)
+	return err
 }
 
-// GetTitleContent takes a os.File and parses the content for the title and body
-// of the post.
-func GetTitleContent(f *os.File) (string, []byte) {
+// ParsePost takes an os.File and returns the title and content of a post. It
+// parses the YAML front matter for a title and anything after the front matter
+// is considered to be the content of the post.
+func ParsePost(f *os.File) (string, []byte) {
 	var title string
 	var fm, ylen int
 
@@ -110,8 +111,8 @@ func GetPost(p string) Post {
 	CheckErr(err)
 	defer f.Close()
 
-	// Get title and content
-	title, content := GetTitleContent(f)
+	// Parse post for title and content
+	title, content := ParsePost(f)
 	post.Title = title
 	post.Content = string(blackfriday.MarkdownCommon(content))
 
@@ -131,8 +132,8 @@ func GetPost(p string) Post {
 	return post
 }
 
-// FindMarkDown takes a path as an argument that will be traversed and searched for
-// markdown files. It returns a slice of Posts.
+// FindMarkDown takes a path as an argument that will be traversed and searched
+// for markdown files. It returns a slice of Posts.
 func FindMarkDown(p string) Posts {
 	var posts []Post
 
@@ -199,5 +200,6 @@ func main() {
 	GenerateIndexPage(posts)
 
 	// Copy over style sheet.
-	CopyStyleSheet()
+	err := CopyStyleSheet()
+	CheckErr(err)
 }
