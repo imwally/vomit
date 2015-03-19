@@ -46,57 +46,57 @@ func (p Posts) Swap(i, j int) {
 
 // GeneratePostPage takes a Post and generates a single HTML blog post page.
 func GeneratePostPage(p Post) error {
-    if _, err := os.Stat(siteDir); err != nil {
-        return err
-    }
+	if _, err := os.Stat(siteDir); err != nil {
+		return err
+	}
 
 	f, err := os.Create(siteDir + p.Filename)
 	CheckErr(err)
 
-    if _, err := os.Stat(templateDir); err != nil {
-        return err
-    }
+	if _, err := os.Stat(templateDir); err != nil {
+		return err
+	}
 
 	t, _ := template.ParseFiles(templateDir + "post.html")
 	t.Execute(f, p)
 
-    return nil
+	return nil
 }
 
 // GenerateIndexPage takes a slice of Posts and generates an index page that
 // links to all blog posts.
 func GenerateIndexPage(p Posts) error {
-    if _, err := os.Stat(siteDir); err != nil {
-        return err
-    }
+	if _, err := os.Stat(siteDir); err != nil {
+		return err
+	}
 
 	f, err := os.Create(siteDir + "index.html")
 	CheckErr(err)
 
-    if _, err := os.Stat(templateDir); err != nil {
-        return err
-    }
+	if _, err := os.Stat(templateDir); err != nil {
+		return err
+	}
 
 	t, _ := template.ParseFiles(templateDir + "index.html")
 	t.Execute(f, p)
 
-    return nil
+	return nil
 }
 
 // CopyStyleSheet will copy the style.css file from the template directory to
 // the site directory.
 func CopyStyleSheet() error {
 	f, err := ioutil.ReadFile(templateDir + "style.css")
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
 	err = ioutil.WriteFile(siteDir+"style.css", f, 0644)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }
 
 // ParsePost takes an os.File and returns the title and content of a post. It
@@ -162,9 +162,9 @@ func GetPost(p string) Post {
 func FindMarkDown(p string) (Posts, error) {
 	var posts []Post
 
-    if _, err := os.Stat(p); err != nil {
-        return nil, err
-    }
+	if _, err := os.Stat(p); err != nil {
+		return nil, err
+	}
 
 	find := func(p string, f os.FileInfo, err error) error {
 		if !f.IsDir() {
@@ -202,17 +202,17 @@ func CreateSiteDir() {
 func main() {
 	// Gather posts.
 	posts, err := FindMarkDown(postDir)
-    CheckErr(err)
+	CheckErr(err)
 
-    // No posts found, kill program.
-    if err != nil {
-        return
-    }
+	// No posts found, kill program.
+	if err != nil {
+		return
+	}
 
-    // If posts were found, create site directory.
-    if err == nil {
-        CreateSiteDir()
-    }
+	// If posts were found, create site directory.
+	if err == nil {
+		CreateSiteDir()
+	}
 
 	// Sort Posts
 	sort.Sort(posts)
@@ -220,14 +220,14 @@ func main() {
 	// Generate post pages.
 	for _, post := range posts {
 		err := GeneratePostPage(post)
-        CheckErr(err)
+		CheckErr(err)
 	}
 
 	// Generate index page.
 	err = GenerateIndexPage(posts)
-    CheckErr(err)
+	CheckErr(err)
 
 	// Copy over style sheet.
 	err = CopyStyleSheet()
-    CheckErr(err)
+	CheckErr(err)
 }
