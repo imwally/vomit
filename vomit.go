@@ -138,7 +138,7 @@ func GetPost(p string) Post {
 
 	// Parse post for title and content
 	title, content := ParsePost(f)
-	post.Title = title
+	post.Title = strings.TrimSpace(title)
 	post.Content = string(blackfriday.MarkdownCommon(content))
 
 	// Get filename
