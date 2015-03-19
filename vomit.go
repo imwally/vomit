@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"github.com/russross/blackfriday"
 	"io/ioutil"
 	"log"
@@ -46,32 +45,58 @@ func (p Posts) Swap(i, j int) {
 }
 
 // GeneratePostPage takes a Post and generates a single HTML blog post page.
-func GeneratePostPage(p Post) {
+func GeneratePostPage(p Post) error {
+    if _, err := os.Stat(siteDir); err != nil {
+        return err
+    }
+
 	f, err := os.Create(siteDir + p.Filename)
 	CheckErr(err)
 
+    if _, err := os.Stat(templateDir); err != nil {
+        return err
+    }
+
 	t, _ := template.ParseFiles(templateDir + "post.html")
 	t.Execute(f, p)
+
+    return nil
 }
 
 // GenerateIndexPage takes a slice of Posts and generates an index page that
 // links to all blog posts.
-func GenerateIndexPage(p Posts) {
+func GenerateIndexPage(p Posts) error {
+    if _, err := os.Stat(siteDir); err != nil {
+        return err
+    }
+
 	f, err := os.Create(siteDir + "index.html")
 	CheckErr(err)
 
+    if _, err := os.Stat(templateDir); err != nil {
+        return err
+    }
+
 	t, _ := template.ParseFiles(templateDir + "index.html")
 	t.Execute(f, p)
+
+    return nil
 }
 
 // CopyStyleSheet will copy the style.css file from the template directory to
 // the site directory.
 func CopyStyleSheet() error {
 	f, err := ioutil.ReadFile(templateDir + "style.css")
-	return err
+    if err != nil {
+        return err
+    }
 
 	err = ioutil.WriteFile(siteDir+"style.css", f, 0644)
-	return err
+    if err != nil {
+        return err
+    }
+
+    return nil
 }
 
 // ParsePost takes an os.File and returns the title and content of a post. It
@@ -134,8 +159,12 @@ func GetPost(p string) Post {
 
 // FindMarkDown takes a path as an argument that will be traversed and searched
 // for markdown files. It returns a slice of Posts.
-func FindMarkDown(p string) Posts {
+func FindMarkDown(p string) (Posts, error) {
 	var posts []Post
+
+    if _, err := os.Stat(p); err != nil {
+        return nil, err
+    }
 
 	find := func(p string, f os.FileInfo, err error) error {
 		if !f.IsDir() {
@@ -151,7 +180,7 @@ func FindMarkDown(p string) Posts {
 	err := filepath.Walk(postDir, find)
 	CheckErr(err)
 
-	return posts
+	return posts, nil
 }
 
 // CheckErr is a helper function that prints errors.
@@ -161,45 +190,44 @@ func CheckErr(err error) {
 	}
 }
 
-func main() {
-
-	// Check for required directories and templates.
-	dirs := []string{
-		postDir,
-		templateDir,
-		templateDir + "index.html",
-		templateDir + "post.html"}
-
-	for _, dir := range dirs {
-		_, err := os.Stat(dir)
-		if err != nil {
-			fmt.Printf("error: %s not found.\n", dir)
-			return
-		}
-	}
-
-	// Create site directory if it doesn't exist.
+// Create site directory.
+func CreateSiteDir() {
 	if _, err := os.Stat("site"); err != nil {
 		if os.IsNotExist(err) {
 			os.Mkdir("site", 0775)
 		}
 	}
+}
 
+func main() {
 	// Gather posts.
-	posts := FindMarkDown(postDir)
+	posts, err := FindMarkDown(postDir)
+    CheckErr(err)
+
+    // No posts found, kill program.
+    if err != nil {
+        return
+    }
+
+    // If posts were found, create site directory.
+    if err == nil {
+        CreateSiteDir()
+    }
 
 	// Sort Posts
 	sort.Sort(posts)
 
 	// Generate post pages.
 	for _, post := range posts {
-		GeneratePostPage(post)
+		err := GeneratePostPage(post)
+        CheckErr(err)
 	}
 
 	// Generate index page.
-	GenerateIndexPage(posts)
+	err = GenerateIndexPage(posts)
+    CheckErr(err)
 
 	// Copy over style sheet.
-	err := CopyStyleSheet()
-	CheckErr(err)
+	err = CopyStyleSheet()
+    CheckErr(err)
 }
