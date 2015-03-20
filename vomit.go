@@ -177,8 +177,9 @@ func FindMarkDown(p string) (Posts, error) {
 		return nil
 	}
 
-	err := filepath.Walk(postDir, find)
-	CheckErr(err)
+	if err := filepath.Walk(postDir, find); err != nil {
+		return nil, err
+	}
 
 	return posts, nil
 }
@@ -202,10 +203,10 @@ func CreateSiteDir() {
 func main() {
 	// Gather posts.
 	posts, err := FindMarkDown(postDir)
-	CheckErr(err)
 
 	// No posts found, kill program.
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
@@ -219,15 +220,18 @@ func main() {
 
 	// Generate post pages.
 	for _, post := range posts {
-		err := GeneratePostPage(post)
-		CheckErr(err)
+		if err := GeneratePostPage(post); err != nil {
+			log.Println(err)
+		}
 	}
 
 	// Generate index page.
-	err = GenerateIndexPage(posts)
-	CheckErr(err)
+	if err = GenerateIndexPage(posts); err != nil {
+		log.Println(err)
+	}
 
 	// Copy over style sheet.
-	err = CopyStyleSheet()
-	CheckErr(err)
+	if err = CopyStyleSheet(); err != nil {
+		log.Println(err)
+	}
 }
