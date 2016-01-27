@@ -51,7 +51,10 @@ func GeneratePostPage(p Post) error {
 	}
 
 	f, err := os.Create(siteDir + p.Filename)
-	CheckErr(err)
+	if err != nil {
+		return err
+	}
+
 
 	if _, err := os.Stat(templateDir); err != nil {
 		return err
@@ -71,7 +74,9 @@ func GenerateIndexPage(p Posts) error {
 	}
 
 	f, err := os.Create(siteDir + "index.html")
-	CheckErr(err)
+	if err != nil {
+		return err
+	}
 
 	if _, err := os.Stat(templateDir); err != nil {
 		return err
@@ -122,7 +127,11 @@ func ParsePost(f *os.File) (string, []byte) {
 	}
 
 	content, err := ioutil.ReadFile(f.Name())
-	CheckErr(err)
+	if err != nil {
+		log.Println(err)
+		return "", nil
+	}
+
 
 	return title, content[ylen+4:]
 }
@@ -133,7 +142,10 @@ func GetPost(p string) Post {
 	var post Post
 
 	f, err := os.Open(p)
-	CheckErr(err)
+	if err != nil {
+		log.Println(err)
+	}
+
 	defer f.Close()
 
 	// Parse post for title and content
@@ -148,7 +160,9 @@ func GetPost(p string) Post {
 
 	// Get Date
 	date, err := time.Parse("2006-01-02", basename[:10])
-	CheckErr(err)
+	if err != nil {
+		log.Println(err)
+	}
 	post.Date = date
 
 	// Format Date
@@ -182,13 +196,6 @@ func FindMarkDown(p string) (Posts, error) {
 	}
 
 	return posts, nil
-}
-
-// CheckErr is a helper function that prints errors.
-func CheckErr(err error) {
-	if err != nil {
-		log.Println(err)
-	}
 }
 
 // Create site directory.
