@@ -23,7 +23,7 @@ blog
 
 Run `vomit`.
 
-````
+```
 ~/blog$ vomit
 ```
 
